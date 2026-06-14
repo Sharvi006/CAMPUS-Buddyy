@@ -1,0 +1,6 @@
+@echo off
+echo Starting Campus Buddy Backend...
+start cmd /k "cd rag-backend && venv\Scripts\activate.bat && venv\Scripts\python.exe main.py"
+
+echo Starting Campus Buddy Frontend...
+start cmd /k "cd campus-buddy-bot-70 && npm run dev"
