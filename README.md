@@ -31,6 +31,13 @@ CAMPUS Buddyy is an AI-powered, friendly chatbot designed to solve real-world pr
 - **Embeddings**: HuggingFace (`all-MiniLM-L6-v2`)
 - **Document Processing**: PyMuPDF (`fitz`) for robust PDF parsing
 
+## 🏗️ System Architecture & Hybrid RAG Workflow
+
+This project is structured as a monorepo splitting production-ready serverless logic and heavy data-processing tasks:
+
+* **Local Python RAG Backend (`/rag-backend`)**: Used for executing heavy document processing, text chunking, and managing localized vector embeddings. This acts as our core pipeline for developing, testing, and iterating on structural campus knowledge.
+* **Supabase Edge Functions (`/frontend/supabase`)**: Handles lightweight authentication, quick data caching, and entry-point API requests. This hybrid design allows us to easily scale client-facing operations onto serverless infrastructure as bot traffic picks up.
+
 ## 📂 Project Structure
 
 ```
