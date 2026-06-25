@@ -4,8 +4,12 @@ import { ChatInput } from "./ChatInput";
 import { QuickActions } from "./QuickActions";
 import { TypingIndicator } from "./TypingIndicator";
 import { ChatMessage as ChatMessageType, generateWelcomeMessage } from "@/utils/chatbotEngine";
-import { GraduationCap, Info, Sparkles } from "lucide-react";
+import { GraduationCap, Info, Sparkles, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import { API_BASE_URL } from "../utils/api";
 
 interface ConversationMessage {
   role: "user" | "assistant";
@@ -18,6 +22,8 @@ export const ChatInterface = () => {
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { token, logout } = useAuth();
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,6 +32,11 @@ export const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   // THIS IS THE NEW FETCH LOGIC PLACED IN THE CORRECT SPOT
   const handleSendMessage = async (content: string) => {
@@ -41,18 +52,29 @@ export const ChatInterface = () => {
 
     try {
       // 🚀 NEW: Call your Python FastAPI RAG backend
-      const response = await fetch("http://127.0.0.1:8000/chat", {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ 
           query: content
-        })
+        }),
       });
 
+      if (response.status === 401) {
+        toast({
+          title: "Session Expired",
+          description: "Please log in again.",
+          variant: "destructive"
+        });
+        handleLogout();
+        return;
+      }
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Server responded with ${response.status}`);
       }
 
       // Parse the JSON response from FastAPI
@@ -113,13 +135,23 @@ export const ChatInterface = () => {
               Powered by Gemini AI
             </p>
           </div>
-          <button 
-            className="w-10 h-10 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/30 transition-colors"
-            onClick={() => handleSendMessage("What can you help me with?")}
-            disabled={isTyping}
-          >
-            <Info className="w-5 h-5 text-primary-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              className="w-10 h-10 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/30 transition-colors"
+              onClick={() => handleSendMessage("What can you help me with?")}
+              disabled={isTyping}
+              title="Help"
+            >
+              <Info className="w-5 h-5 text-primary-foreground" />
+            </button>
+            <button 
+              className="w-10 h-10 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/30 transition-colors"
+              onClick={handleLogout}
+              title="Sign Out"
+            >
+              <LogOut className="w-5 h-5 text-primary-foreground" />
+            </button>
+          </div>
         </div>
       </header>
 

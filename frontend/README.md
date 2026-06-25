@@ -1,8 +1,8 @@
-# Welcome to your Lovable project
+
 
 ## Project info
 
-**URL**: https://campus-buddy-bot-70.lovable.app/
+
 **NAME**:campus-buddy-bot-70
 
 
