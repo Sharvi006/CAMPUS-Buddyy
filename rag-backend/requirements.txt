@@ -15,4 +15,4 @@ pydantic
 PyJWT
 sqlalchemy
 passlib[bcrypt] 
-
+psycopg2-binary
