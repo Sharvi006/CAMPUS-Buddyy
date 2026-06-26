@@ -104,7 +104,10 @@ def on_startup():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://campus-buddy-frontend.vercel.app"],
+    allow_origins=[
+        "https://campus-buddyy.vercel.app", 
+        "*"  # A temporary wildcard to guarantee it connects for your demo
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
